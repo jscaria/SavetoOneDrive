@@ -1,0 +1,22 @@
+{
+  "manifest_version": 2,
+
+  "name": "Save to OneDrive",
+  "description": "This extension takes any public link and saves it to OneDrive.",
+  "version": "1.0",
+
+  "permissions": [
+	"contextMenus", 
+	"tabs"
+  ],
+  
+  "icons": {
+    "16": "OneDrive16.png",
+	"48": "OneDrive48.png",
+	"128": "OneDrive128.png"
+  },
+  
+  "background": {
+    "scripts": ["OneDrive.js"]
+  }
+}
