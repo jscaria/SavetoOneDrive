@@ -1,5 +1,4 @@
-# SavetoOneDRive
-Save to OneDrive - A Google Chrome extension
+# SavetoOneDrive - A Google Chrome extension
 
 URL: http://1dapp.azurewebsites.net
 
