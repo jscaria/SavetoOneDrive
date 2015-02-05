@@ -167,20 +167,22 @@ if(isset($_GET['code']))
 		<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
 		<script type="text/javascript" src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
 		<script type="text/javascript" src="http://code.jquery.com/ui/1.11.2/jquery-ui.min.js"></script>
-		<script type="text/javascript" src="http://jserrlog.appspot.com/jserrlog-min.js"></script>
 		<script type="text/javascript" src="http://jslog.me/js/jslog.js"></script>
 		<script>
 			var jslog = new JsLog({ 
 				key: "34cbd1bf28960e15127c76233f959f76dcb30de6",
-				version: 2
+				version: 4
 			});
 			
-			var status = 0.0;
-			var start = new Date().getTime();
-			var status_location = "<?php echo $onedrive_status_location; ?>";
-			var inProgress = false;
+			// V4 schema: Name,Status,Time,StatusEndpoint,URL,AdditionalKey,AdditionalKeyValue
 			
-			console.log("[DownloadFromURL]:Start,0," + status_location); 
+			var percentageComplete = []; // array of all the percentage completes seen, keyed off of time
+			var failureStatusCodes = []; // array of all the failure status codes
+			var start = new Date().getTime(); // roughly the start time of the download
+			var status_location = "<?php echo $onedrive_status_location; ?>"; // where to get the status of the download
+			var url = "<?php echo $url; ?>"; // the url of the contents to be downloaded
+			
+			console.log("[DownloadFromURL]:Start,0," + status_location + "," + url); // log start
 			
 			function getStatus()
 			{
@@ -203,16 +205,19 @@ if(isset($_GET['code']))
 								}
 								
 							}else if(data.status == "InProgress"){
-								if(!inProgress)
-								{
+								var currentPercentageComplete = parseFloat(data.percentageComplete);
+								
+								// If the status just went to InProgress, add it.
+								// If the percentageComplete increased from the previous one, add it
+								if(percentageComplete.length == 0 || percentageComplete[percentageComplete.length - 1] < currentPercentageComplete) {
 									var end = new Date().getTime();
 									var lengthInMS = end-start;
-									inProgress = true;
-									console.log("[DownloadFromURL]:" + data.status + "," + lengthInMS + "," + status_location);
+									
+									percentageComplete[lengthInMS] = currentPercentageComplete;
+									console.log("[DownloadFromURL]:" + data.status + "," + lengthInMS + "," + status_location + "," + url + ",NewPercentage," + currentPercentageComplete);
 								}
 								
-								status = parseFloat(data.percentageComplete);
-								updateProgress(status);
+								updateProgress(currentPercentageComplete);
 								
 							}else if(data.status == "Waiting"){
 								$(".progress-label").text("Waiting for OneDrive...");	
@@ -232,60 +237,70 @@ if(isset($_GET['code']))
 								var lengthInMS = end-start;
 								console.log("[DownloadFromURL]:" + data.status + "," + lengthInMS + "," + status_location);
 								if(data.statusDescription != null) {
-									console.log(data.statusDescription);
+									console.log("[DownloadFromURL]:" + data.status + "," + lengthInMS + "," + status_location + "," + url + ",Unknown-data.Status," + data.statusDescription);
 								}
 							}
 						},
 						
-						0: function () {
-							status = 100.0;
-							updateProgress(status);
+						0: function (data, textStatus, xhr) {
+							percentageComplete.push(100.0);
+							updateProgress(100.0);
 						},
 						
-						303: function () {
-							status = 100.0;
-							updateProgress(status);
+						303: function (data, textStatus, xhr) {
+							percentageComplete.push(100.0);
+							updateProgress(100.0);
 						},
 						
-						400: function () {
-							status--;
+						400: function (data, textStatus, xhr) {
+							failureStatusCodes.push(xhr.status);
 						},
 						
-						401: function () {
-							status--;
+						401: function (data, textStatus, xhr) { // the auth token expired
+							failureStatusCodes.push(xhr.status);
 						},
 						
-						402: function () {
-							status--;
+						402: function (data, textStatus, xhr) {
+							failureStatusCodes.push(xhr.status);
 						},
 						
-						403: function () {
-							status--;
+						403: function (data, textStatus, xhr) {
+							failureStatusCodes.push(xhr.status);
 						},
 
-						404: function () {
-							status--;
-						},						
+						404: function (data, textStatus, xhr) {
+							failureStatusCodes.push(xhr.status);
+						},				
 
-						408: function () {
-							status--;
-						},	
+						408: function (data, textStatus, xhr) {
+							failureStatusCodes.push(xhr.status);
+						},
 
-						429: function () {
-							status = 10.0;
+						429: function (data, textStatus, xhr) { // we're getting rated limited
+							failureStatusCodes.push(xhr.status);
 						},
 						
-						500: function () {
-							status--;
+						500: function (data, textStatus, xhr) {
+							failureStatusCodes.push(xhr.status);
 						}
 					},
 					
 					complete: function() {
-						if(status < 100.0 && status > -5.0)
+					
+						if(failureStatusCodes.length >= 5)
+						{
+							onFail();
+				
+						// Get the status again if we don't know the percentage complete
+						}else if(percentageComplete.length == 0) {
+							getStatus();
+							
+						// Get the status again
+						}else if(percentageComplete.length > 0 && // we've percentageComplete value AND
+								percentageComplete[percentageComplete.length - 1] < 100.0 && // the last percentageComplete value is < 100 AND
+								percentageComplete[percentageComplete.length - 1] >= 0.0) // the last percentageComplete value is >= 0
 						{
 							getStatus();
-						}else if(status == -5.0){
-							onFail();
 						}
 					}
 				});		
@@ -309,10 +324,10 @@ if(isset($_GET['code']))
 					var lengthInMS = end-start;
 					var lengthInSec = Math.round(lengthInMS/1000);
 					$("#time").text("Took " + lengthInSec + " seconds to succeed");
-					console.log("[DownloadFromURL]:Pass," + lengthInMS + "," + status_location);
+					console.log("[DownloadFromURL]:Pass," + lengthInMS + "," + status_location + "," + url + ",NewPercentage,100.0");
 				}else{
 					$("#progressbar").progressbar("value", x);
-					$(".progress-label").text(x + "%")
+					$(".progress-label").text((Math.round(x * 100) / 100) + "%")
 				}
 			}
 			
@@ -323,7 +338,7 @@ if(isset($_GET['code']))
 				var lengthInSec = Math.round(lengthInMS/1000);
 				$(".progress-label").text("Failed to save to OneDrive  :(");
 				$("#time").text("Took " + lengthInSec + " seconds to fail");
-				console.log("[DownloadFromURL]:Fail," + lengthInMS + "," + status_location);
+				console.log("[DownloadFromURL]:Fail," + lengthInMS + "," + status_location + "," + url + ",FailureStatusCodes," + failureStatusCodes.toString());
 			}
 		</script>
 		
