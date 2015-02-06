@@ -3,12 +3,11 @@ ini_set('display_errors', 1);
 error_reporting(E_ALL);
 session_start();
 
-require_once "config.php"; // defines $my_appid and $my_secret
+require_once "config.php"; // defines $my_appid, $my_secret, and $onedrive_url
 
 $host = "http://1dapp.azurewebsites.net"; // this page's url
 $signin = "https://login.live.com/oauth20_authorize.srf?client_id=" . $my_appid . "&scope=wl.skydrive_update,wl.signin&response_type=code&redirect_uri=" . $host; // MSA OAuth2.0 login endpoint
 $oauthurl = "https://login.live.com/oauth20_token.srf"; // MSA OAuth2.0 token endpoint
-$onedrive_url = "https://df.api.onedrive.com/v1.0/drive/root/children"; // OneDrive URL
 
 /**
  * parse_http_response_header
