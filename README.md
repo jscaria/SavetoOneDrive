@@ -10,10 +10,15 @@ Save to OneDrive is two things:
 
 ### How to use it
 * Pick a website.   I like https://www.pinterest.com/search/pins/?q=seahawks.
+![Pick a website](clip_image001.jpg)
 * Find an image.   Right click on the image and click on “Save to OneDrive > Save image to OneDrive”.   Since this is Pinterest, I had to click on the image first to make it bigger.
+![Find an image](clip_image002.jpg)
 * Sign in with your MSA.
+![Sign in with your MSA](clip_image003.jpg)
 * Give the app permission to access your OneDrive if you haven’t done so in the past.
+![Give permission](clip_image004.jpg)
 * Wait while the app downloads the content to your OneDrive.   Or don’t wait (close your browser) since the process is async.
+![Wait](clip_image005.jpg)
 
 ### How to install the Chrome extension
 #### Update your installation
