@@ -18,7 +18,8 @@ Save to OneDrive is two things:
 * Give the app permission to access your OneDrive if you haven’t done so in the past.
 ![Give permission](clip_image004.jpg)
 * Wait while the app downloads the content to your OneDrive.   Or don’t wait (close your browser) since the process is async.
-![Wait](clip_image005.jpg)
+
+![Wait](clip_image005.png)
 
 ### How to install the Chrome extension
 #### Update your installation
