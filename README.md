@@ -18,7 +18,6 @@ Save to OneDrive is two things:
 * Give the app permission to access your OneDrive if you haven’t done so in the past.
 ![Give permission](clip_image004.jpg)
 * Wait while the app downloads the content to your OneDrive.   Or don’t wait (close your browser) since the process is async.
-
 ![Wait](clip_image005.png)
 
 ### How to install the Chrome extension
@@ -31,7 +30,9 @@ Save to OneDrive is two things:
 1. Download the extension code to a well known location.
 2. Go to chrome://extensions
 3. Check “Developer mode”
+![Developer mode](clip_image006.png)
 4. Click on “Load unpacked extension…”
+![Load unpacked extension](clip_image007.png)
 5. Find the well known location and click "OK".
 	
 
