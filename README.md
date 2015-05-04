@@ -5,7 +5,6 @@ Save to OneDrive is two things:
 
 ## Using the Chrome extension 
 ### Pre-requisites
-* A whitelisted OneDrive account
 * the Google Chrome extension installed
 
 ### How to use it
